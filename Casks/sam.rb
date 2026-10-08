@@ -11,13 +11,13 @@ cask "sam" do
 
   app "SAM.app"
 
-  # SAM is not notarized (no Apple Developer Program). Homebrew re-applies the
+  # SAM is not notarized (no Apple Developer Program). Homebrew applies the
   # macOS quarantine flag at install, which makes Gatekeeper kill this ad-hoc
   # signed app on Apple Silicon with a misleading "damaged" error. Strip it so
   # `brew install` works with zero manual steps.
   postflight_steps do
-    system_command "/usr/bin/xattr",
-                   args: ["-d", "com.apple.quarantine", "{{appdir}}/SAM.app"],
-                   must_succeed: false
+    run "/usr/bin/xattr",
+        args: ["-d", "com.apple.quarantine", "{{appdir}}/SAM.app"],
+        must_succeed: false
   end
 end
