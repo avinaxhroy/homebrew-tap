@@ -1,6 +1,6 @@
 cask "sam" do
   version "0.1.0-beta"
-  sha256 "d620a0de4129a0fc068b180643c96738c150ce2cf6d0abfa788ae5f6ee5171b7"
+  sha256 "b7acbcd0312a9f5e171316b9040955818b38cc6d88d8e8fc6cf257bc632a7d4e"
 
   url "https://github.com/avinaxhroy/SAM/releases/download/v#{version}/SAM_#{version}_aarch64.dmg"
   name "SAM"
