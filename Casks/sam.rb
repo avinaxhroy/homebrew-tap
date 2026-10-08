@@ -17,7 +17,7 @@ cask "sam" do
   # `brew install` works with zero manual steps.
   postflight_steps do
     system_command "/usr/bin/xattr",
-                   args: ["-d", "com.apple.quarantine", "#{appdir}/SAM.app"],
+                   args: ["-d", "com.apple.quarantine", "{{appdir}}/SAM.app"],
                    must_succeed: false
   end
 end
