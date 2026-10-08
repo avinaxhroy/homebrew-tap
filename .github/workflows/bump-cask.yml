@@ -1,0 +1,43 @@
+name: Bump cask on new release
+
+on:
+  schedule:
+    - cron: "0 * * * *" # hourly
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync cask version and sha256 with latest SAM release
+        run: |
+          set -euo pipefail
+          # /releases/latest excludes prereleases, so take newest non-draft release
+          TAG=$(curl -fsS "https://api.github.com/repos/avinaxhroy/SAM/releases" \
+            | jq -r '[.[] | select(.draft == false)][0].tag_name')
+          VERSION=${TAG#v}
+          CURRENT=$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/sam.rb)
+
+          if [ "$VERSION" = "$CURRENT" ]; then
+            echo "Cask already at $VERSION — nothing to do."
+            exit 0
+          fi
+
+          echo "Bumping $CURRENT -> $VERSION"
+          SHA=$(curl -fsSL "https://github.com/avinaxhroy/SAM/releases/download/${TAG}/SAM_${VERSION}_aarch64.dmg" \
+            | shasum -a 256 | cut -d' ' -f1)
+          [ ${#SHA} -eq 64 ] || { echo "bad sha for $TAG"; exit 1; }
+
+          sed -i "s|^  version \".*\"|  version \"${VERSION}\"|" Casks/sam.rb
+          sed -i "s|^  sha256 \".*\"|  sha256 \"${SHA}\"|" Casks/sam.rb
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/sam.rb
+          git commit -m "Bump sam to ${VERSION}"
+          git push
